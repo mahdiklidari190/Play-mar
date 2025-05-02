@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ماربازی</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      touch-action: manipulation;
+    }
+
+    h1 {
+      color: #333;
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    #score {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #444;
+    }
+
+    #game-area {
+      background-color: black;
+      width: 500px;
+      height: 500px;
+      position: relative;
+      overflow: hidden;
+      margin: 0 auto;
+      border: 2px solid #333;
+    }
+
+    #snake {
+      background-color: green;
+      width: 20px;
+      height: 20px;
+      position: absolute;
+      left: 0px;
+      top: 0px;
+    }
+
+    #target {
+      background-color: red;
+      width: 20px;
+      height: 20px;
+      position: absolute;
+    }
+
+    .snake-part {
+      width: 20px;
+      height: 20px;
+      background-color: green;
+      position: absolute;
+    }
+
+    .controls {
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 8px 20px;
+      margin: 0 10px;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .mobile-controls {
+      display: none;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    .direction-btn {
+      width: 60px;
+      height: 60px;
+      font-size: 24px;
+      background-color: #f0f0f0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin: 5px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .direction-btn:active {
+      background-color: #ddd;
+    }
+
+    @media (max-width: 768px) {
+      #game-area {
+        width: 300px;
+        height: 300px;
+      }
+      
+      .mobile-controls {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>ماربازی</h1>
+<div id="score">امتیاز: <span>0</span></div>
+
+<div id="game-area">
+  <div id="snake"></div>
+  <div id="target"></div>
+</div>
+
+<div class="controls">
+  <button id="startBtn">شروع</button>
+  <button id="stopBtn">توقف</button>
+</div>
+
+<div class="mobile-controls">
+  <div style="display: flex; justify-content: center;">
+    <button class="direction-btn" id="upBtn">↑</button>
+  </div>
+  <div style="display: flex; justify-content: center;">
+    <button class="direction-btn" id="leftBtn">←</button>
+    <button class="direction-btn" id="downBtn">↓</button>
+    <button class="direction-btn" id="rightBtn">→</button>
+  </div>
+</div>
+
+<script>
+  var snake = document.getElementById('snake');
+  var target = document.getElementById('target');
+  var scoreDisplay = document.querySelector('#score span');
+  var startBtn = document.getElementById('startBtn');
+  var stopBtn = document.getElementById('stopBtn');
+  var gameArea = document.getElementById('game-area');
+  var stor = 5;
+  
+  // دکمه‌های جهت‌دار موبایل
+  var upBtn = document.getElementById('upBtn');
+  var downBtn = document.getElementById('downBtn');
+  var leftBtn = document.getElementById('leftBtn');
+  var rightBtn = document.getElementById('rightBtn');
+
+  let direction = 'right';
+  let speed = 200;
+  let gameInterval = null;
+  let score = 0;
+  let gridSize = 20;
+  let snakeBody = [];
+  let speedChanged = false;
+
+  moveTarget();
+
+  startBtn.addEventListener('click', startGame);
+  stopBtn.addEventListener('click', stopGame);
+  document.addEventListener('keydown', handleKeyPress);
+  
+  // اضافه کردن event listener برای دکمه‌های موبایل
+  upBtn.addEventListener('touchstart', () => { if (direction !== 'down') direction = 'up'; });
+  downBtn.addEventListener('touchstart', () => { if (direction !== 'up') direction = 'down'; });
+  leftBtn.addEventListener('touchstart', () => { if (direction !== 'right') direction = 'left'; });
+  rightBtn.addEventListener('touchstart', () => { if (direction !== 'left') direction = 'right'; });
+  
+  // برای مرورگرهایی که touch را پشتیبانی نمی‌کنند
+  upBtn.addEventListener('mousedown', () => { if (direction !== 'down') direction = 'up'; });
+  downBtn.addEventListener('mousedown', () => { if (direction !== 'up') direction = 'down'; });
+  leftBtn.addEventListener('mousedown', () => { if (direction !== 'right') direction = 'left'; });
+  rightBtn.addEventListener('mousedown', () => { if (direction !== 'left') direction = 'right'; });
+
+  function startGame() {
+    if (!gameInterval) {
+      gameInterval = setInterval(moveSnake, speed);
+    }
+  }
+
+  function stopGame() {
+    clearInterval(gameInterval);
+    gameInterval = null;
+  }
+
+  function moveSnake() {
+    let snakeLeft = parseInt(snake.style.left) || 0;
+    let snakeTop = parseInt(snake.style.top) || 0;
+    var targetLeft = parseInt(target.style.left) || 0;
+    var targetTop = parseInt(target.style.top) || 0;
+
+    // برخورد با غذا
+    if (snakeLeft === targetLeft && snakeTop === targetTop) {
+      snakeBody.push([snakeLeft, snakeTop]);
+      score++;
+      scoreDisplay.textContent = score;
+      moveTarget();
+
+      // افزایش سرعت پس از امتیاز 5
+      if (score == 2) 
+      {
+        for(score = 2 ; score <= stor ; speed ++)
+          {
+           stor=+2   
+          }
+      }
+    }
+
+    // جابجایی بدنه
+    for (let i = snakeBody.length - 1; i > 0; i--) {
+      snakeBody[i] = [...snakeBody[i - 1]];
+    }
+    if (snakeBody.length) {
+      snakeBody[0] = [snakeLeft, snakeTop];
+    }
+
+    // حرکت سر مار
+    if (direction === 'right') snakeLeft += gridSize;
+    else if (direction === 'left') snakeLeft -= gridSize;
+    else if (direction === 'down') snakeTop += gridSize;
+    else if (direction === 'up') snakeTop -= gridSize;
+
+    // بررسی برخورد با دیوار
+    if (snakeLeft < 0 || snakeLeft >= gameArea.clientWidth || snakeTop < 0 || snakeTop >= gameArea.clientHeight) {
+      gameOver();
+      return;
+    }
+
+    // به‌روزرسانی مکان سر
+    snake.style.left = snakeLeft + 'px';
+    snake.style.top = snakeTop + 'px';
+
+    // حذف بدنه قبلی از DOM
+    document.querySelectorAll('.snake-part').forEach(part => part.remove());
+
+    // رسم بدنه مار
+    snakeBody.forEach(pos => {
+      let part = document.createElement('div');
+      part.classList.add('snake-part');
+      part.style.left = pos[0] + 'px';
+      part.style.top = pos[1] + 'px';
+      gameArea.appendChild(part);
+    });
+  }
+
+  function moveTarget() {
+    var maxPosX = Math.floor(gameArea.clientWidth / gridSize) - 1;
+    var maxPosY = Math.floor(gameArea.clientHeight / gridSize) - 1;
+    var newLeft = Math.floor(Math.random() * maxPosX) * gridSize;
+    var newTop = Math.floor(Math.random() * maxPosY) * gridSize;
+
+    var snakeLeft = parseInt(snake.style.left) || 0;
+    var snakeTop = parseInt(snake.style.top) || 0;
+
+    // اطمینان از اینکه غذا روی سر مار ظاهر نشود
+    if (newLeft === snakeLeft && newTop === snakeTop) {
+      moveTarget();
+      return;
+    }
+
+    target.style.left = newLeft + 'px';
+    target.style.top = newTop + 'px';
+  }
+
+  function gameOver() {
+    stopGame();
+    alert('بازی تمام شد! امتیاز شما: ' + score);
+    resetGame();
+  }
+
+  function resetGame() {
+    score = 0;
+    scoreDisplay.textContent = score;
+    snake.style.left = '0px';
+    snake.style.top = '0px';
+    direction = 'right';
+    snakeBody = [];
+    speed = 200;
+    speedChanged = false;
+    document.querySelectorAll('.snake-part').forEach(p => p.remove());
+    moveTarget();
+  }
+
+  function handleKeyPress(e) {
+    if (e.key === 'ArrowUp' && direction !== 'down') direction = 'up';
+    else if (e.key === 'ArrowDown' && direction !== 'up') direction = 'down';
+    else if (e.key === 'ArrowLeft' && direction !== 'right') direction = 'left';
+    else if (e.key === 'ArrowRight' && direction !== 'left') direction = 'right';
+  }
+</script>
+
+</body>
+</html>
