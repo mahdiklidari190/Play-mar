@@ -138,7 +138,6 @@
   var startBtn = document.getElementById('startBtn');
   var stopBtn = document.getElementById('stopBtn');
   var gameArea = document.getElementById('game-area');
-  var stor = 5;
   
   // دکمه‌های جهت‌دار موبایل
   var upBtn = document.getElementById('upBtn');
@@ -152,7 +151,7 @@
   let score = 0;
   let gridSize = 20;
   let snakeBody = [];
-  let speedChanged = false;
+  let minSpeed = 50; // حداقل سرعت ممکن
 
   moveTarget();
 
@@ -196,13 +195,11 @@
       scoreDisplay.textContent = score;
       moveTarget();
 
-      // افزایش سرعت پس از امتیاز 5
-      if (score == 2) 
-      {
-        for(score = 2 ; score <= stor ; speed ++)
-          {
-           stor=+2   
-          }
+      // افزایش سرعت هر 2 امتیاز (و تا زمانی که به حداقل سرعت نرسیده باشیم)
+      if (score % 2 === 0 && speed > minSpeed) {
+        speed = Math.max(speed - 20, minSpeed); // کاهش فاصله زمانی (افزایش سرعت)
+        clearInterval(gameInterval);
+        gameInterval = setInterval(moveSnake, speed);
       }
     }
 
@@ -276,7 +273,6 @@
     direction = 'right';
     snakeBody = [];
     speed = 200;
-    speedChanged = false;
     document.querySelectorAll('.snake-part').forEach(p => p.remove());
     moveTarget();
   }
