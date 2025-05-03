@@ -139,7 +139,7 @@
   var stopBtn = document.getElementById('stopBtn');
   var gameArea = document.getElementById('game-area');
   
-  // دکمه‌های جهت‌دار موبایل
+  
   var upBtn = document.getElementById('upBtn');
   var downBtn = document.getElementById('downBtn');
   var leftBtn = document.getElementById('leftBtn');
@@ -151,7 +151,7 @@
   let score = 0;
   let gridSize = 20;
   let snakeBody = [];
-  let minSpeed = 50; // حداقل سرعت ممکن
+  let minSpeed = 50; 
 
   moveTarget();
 
@@ -159,7 +159,7 @@
   stopBtn.addEventListener('click', stopGame);
   document.addEventListener('keydown', handleKeyPress);
   
-  // اضافه کردن event listener برای دکمه‌های موبایل
+  
   upBtn.addEventListener('touchstart', () => { if (direction !== 'down') direction = 'up'; });
   downBtn.addEventListener('touchstart', () => { if (direction !== 'up') direction = 'down'; });
   leftBtn.addEventListener('touchstart', () => { if (direction !== 'right') direction = 'left'; });
@@ -182,22 +182,22 @@
     var targetLeft = parseInt(target.style.left) || 0;
     var targetTop = parseInt(target.style.top) || 0;
 
-    // برخورد با غذا
+    
     if (snakeLeft === targetLeft && snakeTop === targetTop) {
       snakeBody.push([snakeLeft, snakeTop]);
       score++;
       scoreDisplay.textContent = score;
       moveTarget();
 
-      // افزایش سرعت هر 2 امتیاز (و تا زمانی که به حداقل سرعت نرسیده باشیم)
+    
       if (score % 2 === 0 && speed > minSpeed) {
-        speed = Math.max(speed - 20, minSpeed); // کاهش فاصله زمانی (افزایش سرعت)
+        speed = Math.max(speed - 20, minSpeed); 
         clearInterval(gameInterval);
         gameInterval = setInterval(moveSnake, speed);
       }
     }
 
-    // جابجایی بدنه
+    
     for (let i = snakeBody.length - 1; i > 0; i--) {
       snakeBody[i] = [...snakeBody[i - 1]];
     }
@@ -205,26 +205,26 @@
       snakeBody[0] = [snakeLeft, snakeTop];
     }
 
-    // حرکت سر مار
+    
     if (direction === 'right') snakeLeft += gridSize;
     else if (direction === 'left') snakeLeft -= gridSize;
     else if (direction === 'down') snakeTop += gridSize;
     else if (direction === 'up') snakeTop -= gridSize;
 
-    // بررسی برخورد با دیوار
+  
     if (snakeLeft < 0 || snakeLeft >= gameArea.clientWidth || snakeTop < 0 || snakeTop >= gameArea.clientHeight) {
       gameOver();
       return;
     }
 
-    // به‌روزرسانی مکان سر
+    
     snake.style.left = snakeLeft + 'px';
     snake.style.top = snakeTop + 'px';
 
-    // حذف بدنه قبلی از DOM
+    
     document.querySelectorAll('.snake-part').forEach(part => part.remove());
 
-    // رسم بدنه مار
+  
     snakeBody.forEach(pos => {
       let part = document.createElement('div');
       part.classList.add('snake-part');
@@ -243,7 +243,7 @@
     var snakeLeft = parseInt(snake.style.left) || 0;
     var snakeTop = parseInt(snake.style.top) || 0;
 
-    // اطمینان از اینکه غذا روی سر مار ظاهر نشود
+    
     if (newLeft === snakeLeft && newTop === snakeTop) {
       moveTarget();
       return;
