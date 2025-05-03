@@ -164,12 +164,6 @@
   downBtn.addEventListener('touchstart', () => { if (direction !== 'up') direction = 'down'; });
   leftBtn.addEventListener('touchstart', () => { if (direction !== 'right') direction = 'left'; });
   rightBtn.addEventListener('touchstart', () => { if (direction !== 'left') direction = 'right'; });
-  
-  // برای مرورگرهایی که touch را پشتیبانی نمی‌کنند
-  upBtn.addEventListener('mousedown', () => { if (direction !== 'down') direction = 'up'; });
-  downBtn.addEventListener('mousedown', () => { if (direction !== 'up') direction = 'down'; });
-  leftBtn.addEventListener('mousedown', () => { if (direction !== 'right') direction = 'left'; });
-  rightBtn.addEventListener('mousedown', () => { if (direction !== 'left') direction = 'right'; });
 
   function startGame() {
     if (!gameInterval) {
